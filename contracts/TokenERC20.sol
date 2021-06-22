@@ -10,10 +10,12 @@ contract tokenPrueba is ERC20("Token de Prueba", "TKN1"){
 
   function burn(address account, uint256 amount) external {
     _burn(account, amount);
+
   }
 
   function mint(address account, uint256 amount) external {
     _mint(account, amount);
+
   }
 
 

@@ -29,9 +29,12 @@ contract Staking {
 
   function _Unstaking() external {
     require (block.timestamp > deadline, 'Staking is not over yet');
+    distributeRewardsOnlyOnePerson(msg.sender);
     uint tokensOriginales = mapaStakeador.data[msg.sender].value.stakedBalance;
     uint tokenRewards = mapaStakeador.data[msg.sender].value.rewards;
-    token.mint(msg.sender, tokensOriginales + tokenRewards);
+
+    token.mint(msg.sender, tokenRewards + tokensOriginales );
+    
   }
 
   function _Staking(uint256 tokenAmount) external {
@@ -54,21 +57,26 @@ contract Staking {
 
 
   }
+  function distributeRewardsOnlyOnePerson(address _staker) internal {
+    datosStaker storage datos = mapaStakeador.data[_staker].value;
+    uint256 rewards_extras = _calcularPorcentaje(datos, deadline);
+    datos.rewards += rewards_extras;
+  }
 
   function distributeRewards() internal {
     for (uint i = mapaStakeador.iterate_start(); mapaStakeador.iterate_valid(i); i = mapaStakeador.iterate_next(i+1)){
-      (address direccionStaker, datosStaker memory datos_del_Staker) = mapaStakeador.iterate_get(i);
+      (address direccionStaker, datosStaker storage datos_del_Staker) = mapaStakeador.iterate_get(i);
 
-      uint256 rewards_calculados = _calcularPorcentaje(datos_del_Staker);
+      uint256 rewards_calculados = _calcularPorcentaje(datos_del_Staker, block.timestamp);
       datos_del_Staker.rewards += rewards_calculados;
       datos_del_Staker.timestamp = block.timestamp;
     }
   }
 
-  function _calcularPorcentaje(datosStaker memory estakeador) internal view returns (uint256){
+  function _calcularPorcentaje(datosStaker memory estakeador, uint256 tiempo) internal view returns (uint256){
     uint256 stake = estakeador.stakedBalance;
-    uint256 tokens_antes_de_aplicar_porcentaje = rewards_per_second*(block.timestamp-estakeador.timestamp);
-    uint256 _rewards = tokens_antes_de_aplicar_porcentaje/totalStaked;
+    uint256 tokens_antes_de_aplicar_porcentaje = rewards_per_second*(tiempo-estakeador.timestamp);
+    uint256 _rewards = tokens_antes_de_aplicar_porcentaje*stake/totalStaked;
     return _rewards;
 
   }

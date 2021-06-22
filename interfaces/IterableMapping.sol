@@ -71,7 +71,7 @@ library IterableMapping {
     return keyIndex;
   }
 
-  function iterate_get(itmap storage mapa, uint keyIndex) internal view returns (address key, datosStaker memory value) {
+  function iterate_get(itmap storage mapa, uint keyIndex) internal view returns (address key, datosStaker storage value) {
     key = mapa.keys[keyIndex].key;
     value = mapa.data[key].value;
   }

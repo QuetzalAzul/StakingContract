@@ -31,4 +31,8 @@ def test_segundostakeo_primera_persona(token, staking, accounts):
     assert token.balanceOf(accounts[0]) == 0;
     assert staking.totalStaked() == 10000e18;
     assert staking.numberOfStakers() == 1;
-    assert staking.mapaStakeador().data[accounts[0]].value.stakedBalance == 10000e18
+
+def test_unstakeo(token, staking, accounts):
+    chain.sleep(864000)
+    staking._Unstaking({'from': accounts[0]})
+    assert 10998e18 < token.balanceOf(accounts[0]) < 11000e18
